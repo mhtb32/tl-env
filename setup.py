@@ -16,6 +16,9 @@ setup(
         'Intended Audience :: Science/Research'
     ],
     python_requires='>=3.6',
-    install_requires=['gym', 'highway-env'],
+    install_requires=[
+        'gym',
+        'highway-env @ git+https://github.com/eleurent/highway-env.git#egg=highway-env'
+    ],
     tests_require=['pytest']
 )
