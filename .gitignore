@@ -1,0 +1,18 @@
+# Compiled sources
+*.pyc
+
+# Setup
+**.egg*
+
+# Jupyter notebooks
+**.ipynb_checkpoints*
+
+# Editor files
+.idea
+
+# Test files
+.pytest_cache
+.cache
+
+# Outputs
+**/out/*
