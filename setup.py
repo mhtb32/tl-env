@@ -6,6 +6,7 @@ setup(
     author='Mohammad Hussein Tavakoli Bina',
     author_email='mhtb32@gmail.com',
     description='A package based on highway-env for temporal logic based reward shaping',
+    url='https://github.com/mhtb32/tl-env',
     packages=find_packages(exclude=['scripts', 'tests']),
     classifiers=[
         'Programming Language :: Python :: 3',
