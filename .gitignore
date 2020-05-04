@@ -15,4 +15,4 @@
 .cache
 
 # Outputs
-**/out/*
+*.pdf
