@@ -58,6 +58,7 @@ def test_step():
     # q3 has no successors, so the state must remain q3
     a.step(alphabet)
     assert a.cur_state == 'q3'
+    assert a.in_final()
 
 
 def test_drawing():

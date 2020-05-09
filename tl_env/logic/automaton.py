@@ -106,6 +106,13 @@ class Automaton(nx.DiGraph):
             if self.get_edge_data(self.cur_state, s)['label'] == active_alphabet[0]:
                 self.cur_state = s
 
+    def in_final(self) -> bool:
+        """Returns true if current state is a final state
+
+        :return: a boolean indicating whether automaton is in final state or not.
+        """
+        return self.cur_state == self.final_state
+
     def draw(self) -> None:
         """Draws automaton using graphviz"""
         agraph = nx.nx_agraph.to_agraph(self)
