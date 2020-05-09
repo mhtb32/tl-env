@@ -4,7 +4,7 @@
 tl-env, shorthand for temporal logic environment, is a [gym](https://github.com/openai/gym) environment based on
 [highway-env](https://github.com/eleurent/highway-env) for temporal tasks with a temporal logic formula.
 ## Installation
-For editable installs:
+This package is still in development phase, but for editable installs you can run:
 ```commandline
 pip install -e git+https://github.com/mhtb32/tl-env.git#egg=tl-env
 ```
