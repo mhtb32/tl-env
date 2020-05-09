@@ -1,6 +1,6 @@
 import pytest
 
-from tl_env.logic.automaton import Automaton
+from tl_env.logic.automaton import Automaton, TransitionError
 
 
 def test_add_state():
@@ -31,6 +31,33 @@ def test_add_state_from():
     # check whether key error is raised
     with pytest.raises(KeyError):
         a.add_state_from([(4, {'typo': 'final'})])
+
+
+def test_step():
+    a = Automaton()
+    alphabet = {'x': True, 'y': False}
+
+    a.add_transition_from([('q1', 'q2', 'x'), ('q1', 'q3', 'y'), ('q2', 'q3', 'y')])
+    # initial state is unknown, so we expect throwing an error
+    with pytest.raises(TransitionError):
+        a.step(alphabet)
+
+    a.add_state_from([('q1', {'type': 'init'}), 'q2', ('q3', {'type': 'final'})])
+
+    a.step(alphabet)
+    assert a.cur_state == 'q2'
+
+    # should not allow simultaneous active alphabet
+    alphabet = {'x': True, 'y': True}
+    with pytest.raises(TransitionError):
+        a.step(alphabet)
+
+    alphabet = {'x': False, 'y': True}
+    a.step(alphabet)
+    assert a.cur_state == 'q3'
+    # q3 has no successors, so the state must remain q3
+    a.step(alphabet)
+    assert a.cur_state == 'q3'
 
 
 def test_drawing():
