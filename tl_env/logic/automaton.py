@@ -113,6 +113,9 @@ class Automaton(nx.DiGraph):
         """
         return self.cur_state == self.final_state
 
+    def reset(self) -> None:
+        self.cur_state = self.initial_state
+
     def draw(self) -> None:
         """Draws automaton using graphviz"""
         agraph = nx.nx_agraph.to_agraph(self)
