@@ -124,6 +124,8 @@ class Automaton(nx.DiGraph):
         final_node = agraph.get_node(self.final_state)
         final_node.attr.update(shape='doublecircle')
         agraph.layout(prog='dot')
+        # create /out in cwd, pass if exists
+        (Path.cwd() / 'out').mkdir(exist_ok=True)
         agraph.draw(str(Path.cwd() / 'out' / 'automaton.pdf'))
 
 
