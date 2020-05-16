@@ -124,7 +124,7 @@ class Automaton(nx.DiGraph):
         final_node = agraph.get_node(self.final_state)
         final_node.attr.update(shape='doublecircle')
         agraph.layout(prog='dot')
-        agraph.draw(str(Path.cwd() / 'automaton.pdf'))
+        agraph.draw(str(Path.cwd() / 'out' / 'automaton.pdf'))
 
 
 class TransitionError(Exception):
