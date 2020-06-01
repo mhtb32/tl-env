@@ -1,17 +1,23 @@
 import gym
-# noinspection PyUnresolvedReferences
-import tl_env
+import pytest
+
+import highway_env
+
+envs = [
+    "SingleGoal-v0",
+    "SingleGymGoal-v0",
+    "DoubleGoal-v0"
+]
 
 
-def test_env_step():
-    env = gym.make("double-goal-v0")
+@pytest.mark.parametrize("env_spec", envs)
+def test_env_step(env_spec):
+    env = gym.make(env_spec)
 
     obs = env.reset()
-    reward = 0.
     for i in range(3):
         action = env.action_space.sample()
         obs, reward, done, info = env.step(action)
     env.close()
 
     assert env.observation_space.contains(obs)
-    assert reward <= env.unwrapped.MAX_REWARD
