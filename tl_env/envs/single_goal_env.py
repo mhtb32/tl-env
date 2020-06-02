@@ -25,7 +25,7 @@ class SingleGoalEnv(AbstractEnv):
             "observation": {
                 "type": "Kinematics",
                 "vehicles_count": 1,
-                "features": ['x', 'y', 'vx', 'vy', 'cos_h', 'sin_h']
+                "features": ['x', 'y', 'vx', 'vy']
             },
             "action": {
                 "type": "Continuous"
@@ -63,7 +63,7 @@ class SingleGoalEnv(AbstractEnv):
 
         :return: a boolean indicating end of episode
         """
-        return self.vehicle.crashed or self.goal.hit or not self.vehicle.on_road
+        return self.vehicle.crashed or self.goal.hit  # or not self.vehicle.on_road
 
     def _reward(self, action: Action) -> float:
         return -np.linalg.norm(self.vehicle.position - self.goal.position)
