@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 # noinspection PyProtectedMember
 from gym import GoalEnv
@@ -7,6 +7,7 @@ from highway_env.envs.common.abstract import AbstractEnv, Action
 from highway_env.road.road import Road, RoadNetwork
 from highway_env.vehicle.kinematics import Vehicle
 from highway_env.road.objects import Landmark
+from highway_env import utils
 
 
 class SingleGoalEnv(AbstractEnv):
@@ -14,11 +15,6 @@ class SingleGoalEnv(AbstractEnv):
 
         The vehicle is driving on a straight highway and must reach goal area, without colliding with other vehicles.
     """
-
-    def __init__(self, config: Dict = None) -> None:
-        self.automaton = None
-        super().__init__(config)
-
     def default_config(self) -> Dict:
         config = super().default_config()
         config.update({
@@ -32,6 +28,7 @@ class SingleGoalEnv(AbstractEnv):
             },
             "simulation_frequency": 15,  # [Hz]
             "policy_frequency": 5,  # [Hz]
+            "duration": 20,  # [s]
             "lanes_count": 4
         })
         return config
@@ -39,7 +36,12 @@ class SingleGoalEnv(AbstractEnv):
     def reset(self) -> np.ndarray:
         self._create_road()
         self._create_vehicle()
+        self.steps = 0
         return super().reset()
+
+    def step(self, action: Action) -> Tuple[np.ndarray, float, bool, dict]:
+        self.steps += 1
+        return super().step(action)
 
     def _create_road(self) -> None:
         self.road = Road(network=RoadNetwork.straight_road_network(self.config["lanes_count"]),
@@ -56,14 +58,11 @@ class SingleGoalEnv(AbstractEnv):
     def _is_terminal(self) -> bool:
         """Determines end of episode
 
-        Determine end of episode when the vehicle:
-            - Reaches an accepting state
-            - Crashes with another vehicle
-            - Or leaves the road
+        Determine end of episode when the vehicle reaches the goal
 
         :return: a boolean indicating end of episode
         """
-        return self.vehicle.crashed or self.goal.hit  # or not self.vehicle.on_road
+        return self.goal.hit or self.steps >= self.config['duration']
 
     def _reward(self, action: Action) -> float:
         return -np.linalg.norm(self.vehicle.position - self.goal.position)
@@ -72,10 +71,62 @@ class SingleGoalEnv(AbstractEnv):
         pass
 
 
+class SingleGoalIDMEnv(SingleGoalEnv):
+    """A continuous control environment with a goal and some adversary vehicles.
+
+        The vehicle must reach the goal while avoiding other vehicles.
+    """
+    def default_config(self) -> Dict:
+        config = super().default_config()
+        config.update({
+            "observation": {
+                "type": "Kinematics",
+                "vehicles_count": 3,
+                "features": ['x', 'y', 'vx', 'vy']
+            },
+            "vehicles_count": 10,
+            "initial_spacing": 1,
+            "duration": 25
+        })
+        return config
+
+    def _create_road(self) -> None:
+        super()._create_road()
+        self.goal.position = np.array([100, 12])
+
+    def _create_vehicle(self) -> None:
+        self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
+        self.road.vehicles.append(self.vehicle)
+
+        vehicles_type = utils.class_from_path(self.config["other_vehicles_type"])
+        for _ in range(self.config["vehicles_count"]):
+            # noinspection PyUnresolvedReferences
+            self.road.vehicles.append(vehicles_type.create_random(self.road))
+
+    def _is_terminal(self) -> bool:
+        """Determines end of episode
+
+        Determine end of episode when:
+
+        - The vehicle reaches the goal or,
+        - The vehicle crashes or,
+        - Episode duration passes an specific amount of time or,
+        - The vehicle leaves the road
+
+        :return: a boolean indicating end of episode
+        """
+        # noinspection PyProtectedMember
+        return self.vehicle._is_colliding(self.goal) or self.vehicle.crashed or self.steps >= self.config['duration'] \
+               or not self.vehicle.on_road
+
+    def _reward(self, action: Action) -> float:
+        # noinspection PyProtectedMember
+        return -0.1 + self.vehicle._is_colliding(self.goal) * 1.0 + self.vehicle.crashed * -1.0 \
+               + (not self.vehicle.on_road) * -0.5
+
+
 class SingleGymGoalEnv(SingleGoalEnv, GoalEnv):
-    """
-        Single Goal Environment inheriting from gym GoalEnv to be compatible with HER algorithm's implementations.
-    """
+    """Single Goal Environment compatible with HER algorithm's implementations."""
     def default_config(self) -> Dict:
         config = super().default_config()
         config.update({
