@@ -85,14 +85,14 @@ class SingleGoalIDMEnv(SingleGoalEnv):
                 "features": ['x', 'y', 'vx', 'vy']
             },
             "vehicles_count": 10,
-            "initial_spacing": 1,
+            "initial_spacing": 2,
             "duration": 25
         })
         return config
 
     def _create_road(self) -> None:
         super()._create_road()
-        self.goal.position = np.array([100, 12])
+        self.goal.position = np.array([120, 12])
 
     def _create_vehicle(self) -> None:
         self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
@@ -116,8 +116,7 @@ class SingleGoalIDMEnv(SingleGoalEnv):
         :return: a boolean indicating end of episode
         """
         # noinspection PyProtectedMember
-        return self.vehicle._is_colliding(self.goal) or self.vehicle.crashed or self.steps >= self.config['duration'] \
-               or not self.vehicle.on_road
+        return self.vehicle._is_colliding(self.goal) or self.vehicle.crashed or self.steps >= self.config['duration']
 
     def _reward(self, action: Action) -> float:
         # noinspection PyProtectedMember
