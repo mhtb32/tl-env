@@ -14,7 +14,7 @@ register(
 
 
 register(
-    id='SingleGoalIDMEnv-v0',
+    id='SingleGoalIDM-v0',
     entry_point='tl_env.envs:SingleGoalIDMEnv'
 )
 
