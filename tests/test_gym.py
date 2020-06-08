@@ -6,7 +6,7 @@ import highway_env
 envs = [
     "SingleGoal-v0",
     "SingleGymGoal-v0",
-    "SingleGoalIDMEnv-v0",
+    "SingleGoalIDM-v0",
     "DoubleGoal-v0"
 ]
 
