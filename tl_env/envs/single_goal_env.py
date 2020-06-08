@@ -29,7 +29,8 @@ class SingleGoalEnv(AbstractEnv):
             "simulation_frequency": 15,  # [Hz]
             "policy_frequency": 5,  # [Hz]
             "duration": 20,  # [s]
-            "lanes_count": 4
+            "lanes_count": 4,
+            "goal_position": [140, 12]
         })
         return config
 
@@ -48,7 +49,7 @@ class SingleGoalEnv(AbstractEnv):
                          np_random=self.np_random)
 
         lane = self.np_random.choice(self.road.network.lanes_list())
-        self.goal = Landmark(self.road, [80, 12], heading=lane.heading)
+        self.goal = Landmark(self.road, self.config["goal_position"], heading=lane.heading)
         self.road.objects.append(self.goal)
 
     def _create_vehicle(self) -> None:
@@ -81,18 +82,15 @@ class SingleGoalIDMEnv(SingleGoalEnv):
         config.update({
             "observation": {
                 "type": "Kinematics",
-                "vehicles_count": 3,
+                "vehicles_count": 4,
                 "features": ['x', 'y', 'vx', 'vy']
             },
             "vehicles_count": 10,
-            "initial_spacing": 2,
-            "duration": 25
+            "initial_spacing": 1,
+            "duration": 25,
+            "goal_position": [160, 12]
         })
         return config
-
-    def _create_road(self) -> None:
-        super()._create_road()
-        self.goal.position = np.array([120, 12])
 
     def _create_vehicle(self) -> None:
         self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
