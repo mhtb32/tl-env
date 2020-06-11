@@ -30,7 +30,9 @@ class SingleGoalEnv(AbstractEnv):
             "policy_frequency": 5,  # [Hz]
             "duration": 20,  # [s]
             "lanes_count": 4,
-            "goal_position": [140, 12]
+            "initial_spacing": 1,
+            "goal_position": [140, 12],
+            "vehicle_init": None
         })
         return config
 
@@ -53,7 +55,23 @@ class SingleGoalEnv(AbstractEnv):
         self.road.objects.append(self.goal)
 
     def _create_vehicle(self) -> None:
-        self.vehicle = Vehicle.create_random(self.road)
+        if self.config["vehicle_init"]:
+            self.vehicle = Vehicle.make_on_lane(
+                self.road,
+                self.road.network.get_closest_lane_index(self.config["vehicle_init"]["position"]),
+                self.config["vehicle_init"]["position"][0],
+                self.road.np_random.uniform(Vehicle.DEFAULT_SPEEDS[0], Vehicle.DEFAULT_SPEEDS[1]) if
+                self.config["vehicle_init"]["speed"] is None else
+                self.config["vehicle_init"]["speed"]
+            )
+            if self.config["vehicle_init"]["heading"] is None:
+                # randomize initial heading
+                self.vehicle.heading += self.np_random.uniform(-np.pi / 12, np.pi / 12)
+            else:
+                self.vehicle.heading = self.config["vehicle_init"]["heading"]
+        else:
+            self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
+
         self.road.vehicles.append(self.vehicle)
 
     def _is_terminal(self) -> bool:
@@ -93,8 +111,7 @@ class SingleGoalIDMEnv(SingleGoalEnv):
         return config
 
     def _create_vehicle(self) -> None:
-        self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
-        self.road.vehicles.append(self.vehicle)
+        super()._create_vehicle()
 
         vehicles_type = utils.class_from_path(self.config["other_vehicles_type"])
         for _ in range(self.config["vehicles_count"]):
