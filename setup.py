@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tl-env',
-    version='0.0.1',
+    version='0.1.0',
     author='Mohammad Hussein Tavakoli Bina',
     author_email='mhtb32@gmail.com',
     description='A package based on highway-env for temporal logic based rewards',
