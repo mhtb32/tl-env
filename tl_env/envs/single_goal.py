@@ -49,9 +49,7 @@ class SingleGoalEnv(AbstractEnv):
     def _create_road(self) -> None:
         self.road = Road(network=RoadNetwork.straight_road_network(self.config["lanes_count"]),
                          np_random=self.np_random)
-
-        lane = self.np_random.choice(self.road.network.lanes_list())
-        self.goal = Landmark(self.road, self.config["goal_position"], heading=lane.heading)
+        self.goal = Landmark(self.road, self.config["goal_position"], heading=0)
         self.road.objects.append(self.goal)
 
     def _create_vehicle(self) -> None:
@@ -125,8 +123,7 @@ class SingleGoalIDMEnv(SingleGoalEnv):
 
         - The vehicle reaches the goal or,
         - The vehicle crashes or,
-        - Episode duration passes an specific amount of time or,
-        - The vehicle leaves the road
+        - Episode duration passes an specific amount of time
 
         :return: a boolean indicating end of episode
         """

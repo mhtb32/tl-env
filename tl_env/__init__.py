@@ -21,6 +21,5 @@ register(
 
 register(
     id='DoubleGoal-v0',
-    entry_point='tl_env.envs:DoubleGoalEnv',
-    max_episode_steps=35
+    entry_point='tl_env.envs:DoubleGoalEnv'
 )

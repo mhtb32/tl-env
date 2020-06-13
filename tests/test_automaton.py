@@ -38,7 +38,7 @@ def test_step():
     alphabet = {'x': True, 'y': False}
 
     a.add_transition_from([('q1', 'q2', 'x'), ('q1', 'q3', 'y'), ('q2', 'q3', 'y')])
-    # initial state is unknown, so we expect throwing an error
+    # initial state is unknown, we expect throwing an error
     with pytest.raises(TransitionError):
         a.step(alphabet)
 

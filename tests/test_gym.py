@@ -1,7 +1,6 @@
 import gym
 import pytest
 
-import highway_env
 
 envs = [
     "SingleGoal-v0",
