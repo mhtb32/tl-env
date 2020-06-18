@@ -3,7 +3,8 @@ from typing import Dict, Tuple
 # noinspection PyProtectedMember
 from gym import GoalEnv
 import numpy as np
-from highway_env.envs.common.abstract import AbstractEnv, Action
+from highway_env.envs.common.abstract import AbstractEnv
+from highway_env.envs.common.action import Action
 from highway_env.road.road import Road, RoadNetwork
 from highway_env.vehicle.kinematics import Vehicle
 from highway_env.road.objects import Landmark
@@ -21,10 +22,11 @@ class SingleGoalEnv(AbstractEnv):
             "observation": {
                 "type": "Kinematics",
                 "vehicles_count": 1,
-                "features": ['x', 'y', 'vx', 'vy']
+                "features": ['x', 'y', 'vx', 'vy'],
+                "clip": False
             },
             "action": {
-                "type": "Continuous"
+                "type": "ContinuousAction"
             },
             "simulation_frequency": 15,  # [Hz]
             "policy_frequency": 5,  # [Hz]
@@ -54,7 +56,8 @@ class SingleGoalEnv(AbstractEnv):
 
     def _create_vehicle(self) -> None:
         if self.config["vehicle_init"]:
-            self.vehicle = Vehicle.make_on_lane(
+            # noinspection PyUnresolvedReferences
+            self.vehicle = self.action_type.vehicle_class.make_on_lane(
                 self.road,
                 self.road.network.get_closest_lane_index(self.config["vehicle_init"]["position"]),
                 self.config["vehicle_init"]["position"][0],
@@ -68,7 +71,9 @@ class SingleGoalEnv(AbstractEnv):
             else:
                 self.vehicle.heading = self.config["vehicle_init"]["heading"]
         else:
-            self.vehicle = Vehicle.create_random(self.road, spacing=self.config['initial_spacing'])
+            # noinspection PyUnresolvedReferences
+            self.vehicle = self.action_type.vehicle_class.create_random(self.road,
+                                                                        spacing=self.config['initial_spacing'])
 
         self.road.vehicles.append(self.vehicle)
 
@@ -99,7 +104,8 @@ class SingleGoalIDMEnv(SingleGoalEnv):
             "observation": {
                 "type": "Kinematics",
                 "vehicles_count": 4,
-                "features": ['x', 'y', 'vx', 'vy']
+                "features": ['x', 'y', 'vx', 'vy'],
+                "clip": False
             },
             "vehicles_count": 10,
             "initial_spacing": 1,
@@ -161,5 +167,5 @@ class SingleGymGoalEnv(SingleGoalEnv, GoalEnv):
         return -np.linalg.norm(achieved_goal - desired_goal)
 
     def _reward(self, action: Action) -> float:
-        obs = self.observation.observe()
+        obs = self.observation_type.observe()
         return self.compute_reward(obs['achieved_goal'], obs['desired_goal'], {})
